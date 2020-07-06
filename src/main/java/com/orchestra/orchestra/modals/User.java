@@ -10,13 +10,35 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long user_id;
 
+    @Column(nullable = false)
     private String first_name;
+
+    @Column(nullable = false)
     private String last_name;
+
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false, length = 10)
     private String mobile;
+
+    @Column(nullable = false)
     private String account_date;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String address;
+
+    @Column(nullable = false)
+    private String pincode;
+
+    @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
+    private String state;
 
     public long getUser_id() {
         return user_id;
@@ -80,5 +102,29 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(String pincode) {
+        this.pincode = pincode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

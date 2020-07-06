@@ -36,6 +36,7 @@ public class UserConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.csrf().disable().
                 authorizeRequests().antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/test").permitAll()
+                .antMatchers("/signup").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic();
 
