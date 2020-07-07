@@ -2,6 +2,7 @@ package com.orchestra.orchestra.services;
 
 import com.orchestra.orchestra.modals.Singer;
 import com.orchestra.orchestra.modals.SingingOption;
+import com.orchestra.orchestra.repo.AdminRepository;
 import com.orchestra.orchestra.repo.OptionRepository;
 import com.orchestra.orchestra.repo.SingerRepository;
 import org.json.JSONArray;
@@ -9,6 +10,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,13 +20,20 @@ import java.util.Optional;
 public class SingerService {
 
     @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
     private SingerRepository singerRepository;
 
     @Autowired
     private OptionRepository optionRepository;
 
-    public boolean addSinger(String json) {
+    public String addSinger(String json, Principal principal) {
         try {
+            if(!adminRepository.findByEmail(principal.getName()).isPresent()) {
+                return "\"Access Denied\"";
+            }
+
             Singer singer = new Singer();
             JSONObject jsonObject = new JSONObject(json);
 
@@ -47,19 +57,41 @@ public class SingerService {
                 optionRepository.save(singingOption);
             }
 
-            return true;
+            return "\"Singer Added\"";
         }
         catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return "\"Singer Already in database\"";
         }
     }
 
-    public List<Singer> getSingers() {
-        return singerRepository.findAll();
+    public String getSingers(Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            JSONArray jsonArray = new JSONArray();
+
+            List<Singer> singerList = singerRepository.findAll();
+            for(Singer s: singerList) {
+                JSONObject jsonObject = new JSONObject(s.toString());
+                List<SingingOption> optionList = optionRepository.findAllBySinger(s);
+
+                jsonObject.append("qualities", optionList);
+                jsonArray.put(jsonObject);
+            }
+
+            return jsonArray.toString();
+        }
+
+        return "\"Access Denied\"";
     }
 
-    public Singer getSinger(long id) {
-        return singerRepository.findById(id).orElse(null);
+    public List<SingingOption> getSinger(long id, Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            Singer singer = singerRepository.findById(id).orElse(null);
+            if(singer != null) {
+                return optionRepository.findAllBySinger(singer);
+            }
+        }
+
+        return new ArrayList<>();
     }
 }

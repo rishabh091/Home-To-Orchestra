@@ -69,4 +69,15 @@ public class Singer {
     public void setDate_added(String date_added) {
         this.date_added = date_added;
     }
+
+    @Override
+    public String toString() {
+        return "{singer_id:" + singer_id +
+                ", first_name:'" + first_name + '\'' +
+                ", last_name:'" + last_name + '\'' +
+                ", email:'" + email + '\'' +
+                ", mobile:'" + mobile + '\'' +
+                ", date_added:'" + date_added + '\'' +
+                '}';
+    }
 }
