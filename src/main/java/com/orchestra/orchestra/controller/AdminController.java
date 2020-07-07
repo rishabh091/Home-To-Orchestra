@@ -1,7 +1,7 @@
 package com.orchestra.orchestra.controller;
 
 import com.orchestra.orchestra.modals.Admin;
-import com.orchestra.orchestra.modals.SingingOption;
+import com.orchestra.orchestra.modals.Singer;
 import com.orchestra.orchestra.services.AdminService;
 import com.orchestra.orchestra.services.SingerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,23 +37,23 @@ public class AdminController {
     }
 
     @PostMapping(path = "/addSinger", consumes = "application/json")
-    public String addSinger(Principal principal, @RequestBody String singer) {
+    public String addSinger(Principal principal, @RequestBody Singer singer) {
         return singerService.addSinger(singer, principal);
     }
 
     @GetMapping(path = "/singers", produces = "application/json")
-    public String getSingers(Principal principal) {
+    public List<Singer> getSingers(Principal principal) {
         return singerService.getSingers(principal);
     }
 
     @GetMapping(path = "/singer/{id}", produces = "application/json")
-    public List<SingingOption> getSinger(Principal principal, @PathVariable long id) {
+    public Singer getSinger(Principal principal, @PathVariable long id) {
         return singerService.getSinger(id, principal);
     }
 
     @PostMapping(path = "/updateSinger", consumes = "application/json")
-    public String updateSinger(Principal principal, @RequestBody String json) {
-        return singerService.updateSinger(json, principal);
+    public String updateSinger(Principal principal, @RequestBody Singer singer) {
+        return singerService.updateSinger(singer, principal);
     }
 
     @GetMapping(path = "/deleteSinger/{id}")

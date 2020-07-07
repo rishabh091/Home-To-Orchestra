@@ -1,9 +1,7 @@
 package com.orchestra.orchestra.services;
 
 import com.orchestra.orchestra.modals.Singer;
-import com.orchestra.orchestra.modals.SingingOption;
 import com.orchestra.orchestra.repo.AdminRepository;
-import com.orchestra.orchestra.repo.OptionRepository;
 import com.orchestra.orchestra.repo.SingerRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,31 +23,14 @@ public class SingerService {
     @Autowired
     private SingerRepository singerRepository;
 
-    @Autowired
-    private OptionRepository optionRepository;
-
-    public String addSinger(String json, Principal principal) {
+    public String addSinger(Singer singer, Principal principal) {
         try {
             if(!adminRepository.findByEmail(principal.getName()).isPresent()) {
                 return "\"Access Denied\"";
             }
 
-            Singer singer = new Singer();
-            JSONObject jsonObject = new JSONObject(json);
-            //convert json into singer object
-            convertIntoSinger(singer, jsonObject);
-            //save singer
-            singer = singerRepository.save(singer);
-            //saving qualities
-            JSONArray jsonArray = jsonObject.getJSONArray("singingOptionList");
-            for(int i = 0; i < jsonArray.length(); i++) {
-                JSONObject options = (JSONObject) jsonArray.get(i);
-
-                SingingOption singingOption = new SingingOption();
-                convertIntoOptions(singingOption, options, singer);
-                //save option
-                optionRepository.save(singingOption);
-            }
+            singer.setDate_added(new Date().toString());
+            singerRepository.save(singer);
 
             return "\"Singer Added\"";
         }
@@ -59,59 +40,29 @@ public class SingerService {
         }
     }
 
-    public String getSingers(Principal principal) {
+    public List<Singer> getSingers(Principal principal) {
         if(adminRepository.findByEmail(principal.getName()).isPresent()) {
-            JSONArray jsonArray = new JSONArray();
-
-            List<Singer> singerList = singerRepository.findAll();
-            for(Singer s: singerList) {
-                JSONObject jsonObject = new JSONObject(s.toString());
-                List<SingingOption> optionList = optionRepository.findAllBySinger(s);
-
-                jsonObject.append("qualities", optionList);
-                jsonArray.put(jsonObject);
-            }
-
-            return jsonArray.toString();
+            return singerRepository.findAll();
         }
 
-        return "\"Access Denied\"";
+        return null;
     }
 
-    public List<SingingOption> getSinger(long id, Principal principal) {
+    public Singer getSinger(long id, Principal principal) {
         if(adminRepository.findByEmail(principal.getName()).isPresent()) {
-            Singer singer = singerRepository.findById(id).orElse(null);
-            if(singer != null) {
-                return optionRepository.findAllBySinger(singer);
-            }
+            return singerRepository.findById(id).orElse(null);
         }
 
-        return new ArrayList<>();
+        return null;
     }
 
-    public String updateSinger(String json, Principal principal) {
+    public String updateSinger(Singer singer, Principal principal) {
         try {
             if(!adminRepository.findByEmail(principal.getName()).isPresent()) {
                 return "\"Access Denied\"";
             }
 
-            JSONObject singerObject = new JSONObject(json);
-            Singer singer = new Singer();
-
-            convertIntoSinger(singer, singerObject);
-            singer.setSinger_id(singerObject.getLong("singer_id"));
-            singer = singerRepository.save(singer);
-
-            JSONArray jsonArray = singerObject.getJSONArray("singingOptionList");
-            for(int i = 0; i < jsonArray.length(); i++) {
-                JSONObject options = (JSONObject) jsonArray.get(i);
-
-                SingingOption singingOption = new SingingOption();
-                convertIntoOptions(singingOption, options, singer);
-                singingOption.setOption_id(options.getLong("option_id"));
-                //save option
-                optionRepository.save(singingOption);
-            }
+            singerRepository.save(singer);
 
             return "\"Singer Updated\"";
         }
@@ -125,10 +76,9 @@ public class SingerService {
     public String delete(long id, Principal principal) {
         if(adminRepository.findByEmail(principal.getName()).isPresent()) {
             Singer singer = singerRepository.findById(id).orElse(null);
-            if(singer != null) {
-                optionRepository.deleteAllBySinger(singer);
-                singerRepository.deleteById(id);
 
+            if(singer != null) {
+                singerRepository.deleteById(id);
                 return "\"Singer Deleted\"";
             }
 
@@ -136,29 +86,5 @@ public class SingerService {
         }
 
         return "\"Access Denied\"";
-    }
-
-
-
-
-    /**
-     * PRIVATE HELPING FUNCTIONS
-     * **/
-
-    private Singer convertIntoSinger(Singer singer, JSONObject jsonObject) {
-        singer.setDate_added(new Date().toString());
-        singer.setFirst_name(jsonObject.getString("first_name"));
-        singer.setLast_name(jsonObject.getString("last_name"));
-        singer.setEmail(jsonObject.getString("email"));
-        singer.setMobile(jsonObject.getString("mobile"));
-
-        return singer;
-    }
-    private SingingOption convertIntoOptions(SingingOption singingOption, JSONObject options, Singer singer) {
-        singingOption.setLevel(options.getInt("level"));
-        singingOption.setStyle(options.getString("style"));
-        singingOption.setSinger(singer);
-
-        return singingOption;
     }
 }
