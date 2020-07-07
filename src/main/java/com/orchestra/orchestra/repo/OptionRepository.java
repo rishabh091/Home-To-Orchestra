@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface OptionRepository extends JpaRepository<SingingOption, Long> {
     List<SingingOption> findAllBySinger(Singer singer);
+    void deleteAllBySinger(Singer singer);
 }

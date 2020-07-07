@@ -47,5 +47,10 @@ public class UserConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and().httpBasic();
         httpSecurity.cors();
+
+        httpSecurity.logout()
+                .logoutUrl("/logout")
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true);
     }
 }

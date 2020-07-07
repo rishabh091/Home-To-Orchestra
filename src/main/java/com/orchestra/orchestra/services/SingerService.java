@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -119,6 +120,30 @@ public class SingerService {
             return "\"Server Error\"";
         }
     }
+
+    @Transactional
+    public String delete(long id, Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            Singer singer = singerRepository.findById(id).orElse(null);
+            if(singer != null) {
+                optionRepository.deleteAllBySinger(singer);
+                singerRepository.deleteById(id);
+
+                return "\"Singer Deleted\"";
+            }
+
+            return "\"Singer not found\"";
+        }
+
+        return "\"Access Denied\"";
+    }
+
+
+
+
+    /**
+     * PRIVATE HELPING FUNCTIONS
+     * **/
 
     private Singer convertIntoSinger(Singer singer, JSONObject jsonObject) {
         singer.setDate_added(new Date().toString());
