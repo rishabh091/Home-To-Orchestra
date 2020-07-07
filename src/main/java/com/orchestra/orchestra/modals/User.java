@@ -16,10 +16,10 @@ public class User {
     @Column(nullable = false)
     private String last_name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private String mobile;
 
     @Column(nullable = false)
@@ -39,6 +39,8 @@ public class User {
 
     @Column(nullable = false)
     private String state;
+
+    private boolean active;
 
     public long getUser_id() {
         return user_id;
@@ -70,6 +72,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String getMobile() {

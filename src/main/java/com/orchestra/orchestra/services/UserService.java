@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -21,8 +22,10 @@ public class UserService {
         try {
             user.setAccount_date(new Date().toString());
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setActive(true);
             userRepository.save(user);
 
+            System.out.println("User " + user.getEmail() + " added to db");
             return true;
         }
         catch (Exception e) {
@@ -30,5 +33,9 @@ public class UserService {
 
             return false;
         }
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
