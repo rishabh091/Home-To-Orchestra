@@ -42,7 +42,8 @@ public class UserConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/test").permitAll()
                 .antMatchers("/signup").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/admin/**").permitAll()
+                .antMatchers("/admin/signup").permitAll()
+                .antMatchers("/admin/login").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic();
         httpSecurity.cors();
