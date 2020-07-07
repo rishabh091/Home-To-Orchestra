@@ -60,4 +60,9 @@ public class AdminController {
     public String deleteSinger(Principal principal, @PathVariable long id) {
         return singerService.delete(id, principal);
     }
+
+    @PostMapping(path = "/edit", consumes = "application/json")
+    public Admin editProfile(Principal principal, @RequestBody Admin admin) {
+        return adminService.update(admin, principal);
+    }
 }

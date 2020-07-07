@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Date;
 
 @Service
@@ -28,9 +29,17 @@ public class AdminService {
             return true;
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
 
             return false;
         }
+    }
+
+    public Admin update(Admin admin, Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            return adminRepository.save(admin);
+        }
+
+        return null;
     }
 }

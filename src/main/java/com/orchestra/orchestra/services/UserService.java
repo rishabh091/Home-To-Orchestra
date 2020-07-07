@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -35,7 +35,11 @@ public class UserService {
         }
     }
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User update(User user, Principal principal) {
+        if(userRepository.findByEmail(principal.getName()).isPresent()) {
+            return userRepository.save(user);
+        }
+
+        return null;
     }
 }
