@@ -46,4 +46,9 @@ public class AdminController {
     private List<SingingOption> getSinger(Principal principal, @PathVariable long id) {
         return singerService.getSinger(id, principal);
     }
+
+    @PostMapping(path = "/updateSinger", consumes = "application/json")
+    private String updateSinger(Principal principal, @RequestBody String json) {
+        return singerService.updateSinger(json, principal);
+    }
 }

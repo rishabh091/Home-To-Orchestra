@@ -14,7 +14,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SingerService {
@@ -36,12 +35,8 @@ public class SingerService {
 
             Singer singer = new Singer();
             JSONObject jsonObject = new JSONObject(json);
-
-            singer.setDate_added(new Date().toString());
-            singer.setFirst_name(jsonObject.getString("first_name"));
-            singer.setLast_name(jsonObject.getString("last_name"));
-            singer.setEmail(jsonObject.getString("email"));
-            singer.setMobile(jsonObject.getString("mobile"));
+            //convert json into singer object
+            convertIntoSinger(singer, jsonObject);
             //save singer
             singer = singerRepository.save(singer);
             //saving qualities
@@ -50,9 +45,7 @@ public class SingerService {
                 JSONObject options = (JSONObject) jsonArray.get(i);
 
                 SingingOption singingOption = new SingingOption();
-                singingOption.setLevel(options.getInt("level"));
-                singingOption.setStyle(options.getString("style"));
-                singingOption.setSinger(singer);
+                convertIntoOptions(singingOption, options, singer);
                 //save option
                 optionRepository.save(singingOption);
             }
@@ -93,5 +86,54 @@ public class SingerService {
         }
 
         return new ArrayList<>();
+    }
+
+    public String updateSinger(String json, Principal principal) {
+        try {
+            if(!adminRepository.findByEmail(principal.getName()).isPresent()) {
+                return "\"Access Denied\"";
+            }
+
+            JSONObject singerObject = new JSONObject(json);
+            Singer singer = new Singer();
+
+            convertIntoSinger(singer, singerObject);
+            singer.setSinger_id(singerObject.getLong("singer_id"));
+            singer = singerRepository.save(singer);
+
+            JSONArray jsonArray = singerObject.getJSONArray("singingOptionList");
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject options = (JSONObject) jsonArray.get(i);
+
+                SingingOption singingOption = new SingingOption();
+                convertIntoOptions(singingOption, options, singer);
+                singingOption.setOption_id(options.getLong("option_id"));
+                //save option
+                optionRepository.save(singingOption);
+            }
+
+            return "\"Singer Updated\"";
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "\"Server Error\"";
+        }
+    }
+
+    private Singer convertIntoSinger(Singer singer, JSONObject jsonObject) {
+        singer.setDate_added(new Date().toString());
+        singer.setFirst_name(jsonObject.getString("first_name"));
+        singer.setLast_name(jsonObject.getString("last_name"));
+        singer.setEmail(jsonObject.getString("email"));
+        singer.setMobile(jsonObject.getString("mobile"));
+
+        return singer;
+    }
+    private SingingOption convertIntoOptions(SingingOption singingOption, JSONObject options, Singer singer) {
+        singingOption.setLevel(options.getInt("level"));
+        singingOption.setStyle(options.getString("style"));
+        singingOption.setSinger(singer);
+
+        return singingOption;
     }
 }
