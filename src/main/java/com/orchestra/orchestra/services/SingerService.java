@@ -42,25 +42,19 @@ public class SingerService {
     }
 
     public List<Singer> getSingers(Principal principal) {
-        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
-            return singerRepository.findAll();
-        }
-
-        return null;
+        return singerRepository.findAll();
     }
 
     public Singer getSinger(long id, Principal principal) {
-        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
-            Optional<Singer> singerOptional = singerRepository.findById(id);
+        Optional<Singer> singerOptional = singerRepository.findById(id);
 
-            if(singerOptional.isPresent()) {
-                Singer singer = singerOptional.get();
-                singer
-                        .setImage(ImageHelper
-                                .decompressBytes(singer.getImage()));
+        if(singerOptional.isPresent()) {
+            Singer singer = singerOptional.get();
+            singer
+                    .setImage(ImageHelper
+                            .decompressBytes(singer.getImage()));
 
-                return singer;
-            }
+            return singer;
         }
 
         return null;
