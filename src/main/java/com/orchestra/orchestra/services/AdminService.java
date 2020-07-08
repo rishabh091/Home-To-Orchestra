@@ -39,6 +39,7 @@ public class AdminService {
 
     public Admin update(Admin admin, Principal principal) {
         if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            admin.setPassword(passwordEncoder.encode(admin.getPassword()));
             return adminRepository.save(admin);
         }
 

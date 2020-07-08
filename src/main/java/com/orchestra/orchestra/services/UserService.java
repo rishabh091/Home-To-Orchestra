@@ -37,6 +37,7 @@ public class UserService {
 
     public User update(User user, Principal principal) {
         if(userRepository.findByEmail(principal.getName()).isPresent()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return userRepository.save(user);
         }
 
