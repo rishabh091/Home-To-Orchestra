@@ -1,10 +1,9 @@
 package com.orchestra.orchestra.modals;
 
-import jdk.internal.jline.internal.Nullable;
-
 import javax.persistence.*;
 
 @Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -12,7 +11,6 @@ public class Order {
     private long order_id;
 
     @ManyToOne
-    @Column(nullable = false)
     private Vocal vocal;
 
     @Column(nullable = false)
@@ -28,7 +26,6 @@ public class Order {
     private int type;
 
     @ManyToOne
-    @Column(nullable = false)
     private User user;
 
     @Column(nullable = false)

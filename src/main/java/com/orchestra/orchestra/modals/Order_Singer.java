@@ -9,11 +9,9 @@ public class Order_Singer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long os_id;
 
-    @Column(nullable = false)
     @ManyToOne
     private Order order;
 
-    @Column(nullable = false)
     @ManyToOne
     private Singer singer;
 
