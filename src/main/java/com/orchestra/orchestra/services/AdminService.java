@@ -1,6 +1,7 @@
 package com.orchestra.orchestra.services;
 
 import com.orchestra.orchestra.modals.Admin;
+import com.orchestra.orchestra.modals.Singer;
 import com.orchestra.orchestra.repo.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class AdminService {

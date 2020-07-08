@@ -1,6 +1,7 @@
 package com.orchestra.orchestra.modals;
 
 import javax.persistence.*;
+import java.util.Arrays;
 
 @Entity
 public class Singer {
@@ -13,6 +14,9 @@ public class Singer {
     private String first_name;
 
     private String last_name;
+
+    @Column(length = 2000, columnDefinition = "LONGBLOB")
+    private byte[] image;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -70,14 +74,24 @@ public class Singer {
         this.date_added = date_added;
     }
 
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
     @Override
     public String toString() {
-        return "{singer_id:" + singer_id +
-                ", first_name:'" + first_name + '\'' +
-                ", last_name:'" + last_name + '\'' +
-                ", email:'" + email + '\'' +
-                ", mobile:'" + mobile + '\'' +
-                ", date_added:'" + date_added + '\'' +
+        return "Singer{" +
+                "singer_id=" + singer_id +
+                ", first_name='" + first_name + '\'' +
+                ", last_name='" + last_name + '\'' +
+                ", image=" + Arrays.toString(image) +
+                ", email='" + email + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", date_added='" + date_added + '\'' +
                 '}';
     }
 }

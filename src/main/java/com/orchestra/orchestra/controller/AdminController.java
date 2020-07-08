@@ -6,7 +6,9 @@ import com.orchestra.orchestra.services.AdminService;
 import com.orchestra.orchestra.services.SingerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.security.Principal;
 import java.util.List;
 
@@ -36,8 +38,8 @@ public class AdminController {
         return "\"logout successful\"";
     }
 
-    @PostMapping(path = "/addSinger", consumes = "application/json")
-    public String addSinger(Principal principal, @RequestBody Singer singer) {
+    @PostMapping(path = "/addSinger")
+    public Singer addSinger(Principal principal, @RequestBody Singer singer) {
         return singerService.addSinger(singer, principal);
     }
 
@@ -64,5 +66,10 @@ public class AdminController {
     @PostMapping(path = "/edit", consumes = "application/json")
     public Admin editProfile(Principal principal, @RequestBody Admin admin) {
         return adminService.update(admin, principal);
+    }
+
+    @PostMapping(path = "/singer/{id}/upload")
+    public String uploadPic(Principal principal, @RequestBody String data, @PathVariable long id) {
+        return singerService.uploadImage(data, id, principal);
     }
 }

@@ -3,16 +3,19 @@ package com.orchestra.orchestra.services;
 import com.orchestra.orchestra.modals.Singer;
 import com.orchestra.orchestra.repo.AdminRepository;
 import com.orchestra.orchestra.repo.SingerRepository;
+import com.orchestra.orchestra.services.helpers.ImageHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SingerService {
@@ -23,20 +26,18 @@ public class SingerService {
     @Autowired
     private SingerRepository singerRepository;
 
-    public String addSinger(Singer singer, Principal principal) {
+    public Singer addSinger(Singer singer, Principal principal) {
         try {
             if(!adminRepository.findByEmail(principal.getName()).isPresent()) {
-                return "\"Access Denied\"";
+                return null;
             }
 
             singer.setDate_added(new Date().toString());
-            singerRepository.save(singer);
-
-            return "\"Singer Added\"";
+            return singerRepository.save(singer);
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "\"Singer Already in database\"";
+            return null;
         }
     }
 
@@ -50,7 +51,16 @@ public class SingerService {
 
     public Singer getSinger(long id, Principal principal) {
         if(adminRepository.findByEmail(principal.getName()).isPresent()) {
-            return singerRepository.findById(id).orElse(null);
+            Optional<Singer> singerOptional = singerRepository.findById(id);
+
+            if(singerOptional.isPresent()) {
+                Singer singer = singerOptional.get();
+                singer
+                        .setImage(ImageHelper
+                                .decompressBytes(singer.getImage()));
+
+                return singer;
+            }
         }
 
         return null;
@@ -83,6 +93,23 @@ public class SingerService {
             }
 
             return "\"Singer not found\"";
+        }
+
+        return "\"Access Denied\"";
+    }
+
+    public String uploadImage(String data, long id, Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            Optional<Singer> singerOptional = singerRepository.findById(id);
+            if(!singerOptional.isPresent()) {
+                return "\"No singer with this id present\"";
+            }
+
+            Singer singer = singerOptional.get();
+            singer.setImage(ImageHelper.compress(data.getBytes()));
+            singerRepository.save(singer);
+
+            return "\"Image Uploaded Successfully\"";
         }
 
         return "\"Access Denied\"";
