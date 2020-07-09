@@ -23,7 +23,7 @@ public class OrderController {
 
     @GetMapping(path = "/myOrders", produces = "application/json")
     public List<Order> getMyOrders(Principal principal) {
-        return orderService.getOrders(principal);
+        return orderService.getOrders(principal, false);
     }
 
     @GetMapping(path = "/myOrders/{orderId}/singer")
@@ -34,5 +34,20 @@ public class OrderController {
     @GetMapping(path = "/delete/{orderId}")
     public boolean delete(Principal principal, @PathVariable long orderId) {
         return orderService.delete(orderId, principal);
+    }
+
+    @GetMapping(path = "/accepted", produces = "application/json")
+    public List<Order> getAcceptedOrders(Principal principal) {
+        return orderService.getOrders(principal, true);
+    }
+
+    @GetMapping(path = "/accept/{orderId}", produces = "application/json")
+    public Object acceptOrder(Principal principal, @PathVariable long orderId) {
+        return orderService.accept(orderId, principal);
+    }
+
+    @GetMapping(path = "/reject/{orderId}", produces = "application/json")
+    public Object rejectOrder(Principal principal, @PathVariable long orderId) {
+        return orderService.reject(orderId, principal);
     }
 }

@@ -5,6 +5,8 @@ import com.orchestra.orchestra.modals.Order_Singer;
 import com.orchestra.orchestra.modals.User;
 import com.orchestra.orchestra.modals.Vocal;
 import com.orchestra.orchestra.repo.*;
+import com.orchestra.orchestra.services.helpers.Mail;
+import com.orchestra.orchestra.services.helpers.ReadFile;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class OrderService {
     @Autowired
     private VocalRepository vocalRepository;
 
+    @Autowired
+    private AdminRepository adminRepository;
+
     public boolean place(String json, Principal principal) {
         Optional<User> userOptional = userRepository.findByEmail(principal.getName());
         if(userOptional.isPresent()) {
@@ -57,6 +62,7 @@ public class OrderService {
             order.setDate_placed(new Date().toString());
             order.setUser(userOptional.get());
 
+            order.setCompleted(false);
             order = orderRepository.save(order);
 
             JSONArray jsonArray = jsonObject.getJSONArray("singers");
@@ -76,10 +82,10 @@ public class OrderService {
         return false;
     }
 
-    public List<Order> getOrders(Principal principal) {
+    public List<Order> getOrders(Principal principal, boolean completed) {
         Optional<User> userOptional = userRepository.findByEmail(principal.getName());
         if(userOptional.isPresent()) {
-            return orderRepository.findAllByUser(userOptional.get());
+            return orderRepository.findAllByUserAndCompleted(userOptional.get(), completed);
         }
 
         return new ArrayList<>();
@@ -115,5 +121,75 @@ public class OrderService {
         }
 
         return false;
+    }
+
+    public Object accept(long orderId, Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            Optional<Order> orderOptional = orderRepository.findById(orderId);
+
+            if(orderOptional.isPresent() && !orderOptional.get().isCompleted()) {
+                Order order = orderOptional.get();
+                order.setCompleted(true);
+
+                //send mail that order is accepted
+                User user = order.getUser();
+                try {
+                    String data = ReadFile.readAcceptedMail(order);
+                    sendDataToMail(data, user);
+                }
+                catch (Exception e) {
+                    System.out.println("Can't Accept order " + order.getOrder_id());
+                    e.printStackTrace();
+
+                    return "\"Order not Accepted\"";
+                }
+
+                return orderRepository.save(order);
+            }
+
+            return "\"Order already accepted\"";
+        }
+
+        return "\"Access Denied\"";
+    }
+
+    public Object reject(long orderId, Principal principal) {
+        if(adminRepository.findByEmail(principal.getName()).isPresent()) {
+            Order order = orderRepository.findById(orderId).orElse(null);
+            if(order == null) {
+                return "\"Order not found\"";
+            }
+
+            //send mail to user that it is rejected
+            User user = order.getUser();
+            try {
+                String data = ReadFile.readRejectMail(order);
+                sendDataToMail(data, user);
+            }
+            catch (Exception e) {
+                System.out.println("Cannot send reject mail");
+                e.printStackTrace();
+
+                return "\"Error in sending rejection\"";
+            }
+
+            orderSingerRepository.deleteAllByOrder(order);
+            orderRepository.delete(order);
+
+            return "\"Order deleted\"";
+        }
+
+        return "\"Access Denied\"";
+    }
+
+    private void sendDataToMail(String data, User user) {
+        JSONObject jsonObject = new JSONObject(data);
+
+        Mail mail = new Mail();
+        mail.setUser_email(user.getEmail());
+        mail.setSubject(jsonObject.getString("subject"));
+        mail.setContent(jsonObject.getString("content"));
+
+        mail.start();
     }
 }

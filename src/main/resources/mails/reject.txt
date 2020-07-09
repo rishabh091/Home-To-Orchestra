@@ -1,0 +1,4 @@
+{
+    "subject": "Rejected Order",
+    "content": "<b>Your request has been <mark>rejected</mark>. Please try a different time slot. Recorded Data : <br/>Venue: {venue} <br/>Date: {date} <br/>Time: {time}</b>"
+}

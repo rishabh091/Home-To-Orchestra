@@ -37,6 +37,9 @@ public class Order {
     @Column(nullable = false)
     private String time;
 
+    @Column(nullable = false)
+    private boolean completed;
+
     public long getOrder_id() {
         return order_id;
     }
@@ -115,5 +118,13 @@ public class Order {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

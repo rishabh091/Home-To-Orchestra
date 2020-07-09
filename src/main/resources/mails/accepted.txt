@@ -1,0 +1,4 @@
+{
+    "subject": "Accepted Order",
+    "content": "<b>Your request has been <mark>accepted</mark>. Recorded Data : <br/>Venue: {venue} <br/>Date: {date} <br/>Time: {time}</b>"
+}
